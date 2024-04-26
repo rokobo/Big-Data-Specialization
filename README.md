@@ -142,9 +142,9 @@ The overall accuracy of the model was:
 
 From the analysis of the decision tree, the most reliant metric to determine if a user is a high spender or low spender is the platform type of the user. My recommendations to increase revenue include:
 
-- <u>Increase</u> the quantity, price and exclusives of the item market in the IOS platform.
-- <u>Increase</u> ad spending for IOS devices.
-- <u>Eliminate</u> ad spending for Linux users and <u>decrease</u> ad spending for Android, Windows and Mac users.
+- **Increase** the quantity, price and exclusives of the item market in the IOS platform.
+- **Increase** ad spending for IOS devices.
+- **Eliminate** ad spending for Linux users and **decrease** ad spending for Android, Windows and Mac users.
 
 ## K-means clustering in Spark
 
@@ -190,10 +190,10 @@ This graph with 5 clusters provides a more detailed view of the patterns:
 
 From the analysis of the K-Means model in Spark, my recommendations to increase revenue include:
 
-- <u>Increase</u> the quantity, price and exclusives of the item market in the IOS platform.
-- <u>Increase</u> ad spending for IOS devices.
-- <u>Eliminate</u> ad spending for Linux users and <u>decrease</u> ad spending for Android, Windows and Mac users.
-- <u>Increase</u> ad spending for users with high hit averages, <u>decrease</u> ad spending for users with low hit averages.
-- <u>Develop</u> new game mechanisms that incentivize high hit averages and continued engagement.
-- <u>Increase</u> ad spending for users in low to mid strength teams and <u>decrease</u> ad spending for users in high-strength teams.
-- <u>Increase</u> ad spending progressively for users with high spending.
+- **Increase** the quantity, price and exclusives of the item market in the IOS platform.
+- **Increase** ad spending for IOS devices.
+- **Eliminate** ad spending for Linux users and **decrease** ad spending for Android, Windows and Mac users.
+- **Increase** ad spending for users with high hit averages, **decrease** ad spending for users with low hit averages.
+- **Develop** new game mechanisms that incentivize high hit averages and continued engagement.
+- **Increase** ad spending for users in low to mid strength teams and **decrease** ad spending for users in high-strength teams.
+- **Increase** ad spending progressively for users with high spending.
