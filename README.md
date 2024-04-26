@@ -10,7 +10,7 @@
 
 The game's data model is shown in the following entity relationship diagram (ERD):
 
-<img src="images/ERD.png?raw=true" alt="ERD" width="50%"/>
+<img src="images/ERD.png?raw=true" alt="ERD" width="75%"/>
 
 - Each user is a member of at most one team. When a new user starts playing the game, they are on a team by themselves for the first level and may join a team on subsequent levels.
 
