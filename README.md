@@ -63,7 +63,7 @@ The table below lists each of the files available for analysis with a short desc
     source="/data/buy-clicks.csv" | stats count by buyId
     ```
 
-    <img src="images/purchases-per-item.png?raw=true" alt="purchases-per-item" width="75%"/>
+    <img src="images/purchases-per-item.png?raw=true" alt="purchases-per-item" width="100%"/>
 
 - A histogram showing how much money was made from each item:
 
@@ -71,7 +71,7 @@ The table below lists each of the files available for analysis with a short desc
     source="/data/buy-clicks.csv" | stats sum(price) as Revenue by buyId
     ```
 
-    <img src="images/revenue-per-item.png?raw=true" alt="revenue-per-item" width="75%"/>
+    <img src="images/revenue-per-item.png?raw=true" alt="revenue-per-item" width="100%"/>
 
 - A histogram showing total amount of money spent by the top ten users (ranked by how much money they spent).
 
@@ -79,7 +79,7 @@ The table below lists each of the files available for analysis with a short desc
     source="/data/buy-clicks.csv" | stats sum(price) as "Revenue" by userId | sort - "Revenue" | head 10
     ```
 
-    <img src="images/revenue-per-user-top10.png?raw=true" alt="revenue-per-user-top10" width="75%"/>
+    <img src="images/revenue-per-user-top10.png?raw=true" alt="revenue-per-user-top10" width="100%"/>
 
 - user id, platform, and hit-ratio percentage for the top three buying users:
 
@@ -111,7 +111,7 @@ The table below lists each of the files available for analysis with a short desc
 
 The classification Knime workflow can be imported to Knime via the `big_spenders.knwf` file. The workflow design is as follows:
 
-<img src="images/knime-workflow.svg?raw=true" alt="knime-workflow.svg" width="75%"/>
+<img src="images/knime-workflow.svg?raw=true" alt="knime-workflow.svg" width="100%"/>
 
 This workflow was desined to categorize users into `HighRollers` (average item purchase > $5.00) and `PennyPinchers` (average item purchase < $5.00). The steps taken are as follows:
 
@@ -127,7 +127,7 @@ This workflow was desined to categorize users into `HighRollers` (average item p
 7. Train a decision tree model using the training set.
 8. Evaluate the model using the test set.
 
-<img src="images/knime-decision-tree.svg?raw=true" alt="knime-decision-tree.svg" width="75%"/>
+<img src="images/knime-decision-tree.svg?raw=true" alt="knime-decision-tree.svg" width="100%"/>
 
 The overall accuracy of the model was:
 
@@ -160,7 +160,7 @@ The analysis can be customized by changing the number of clusters. The results c
 
 
 <p align="center">
-<img src="images/spark-clustering-2.png?raw=true" alt="spark-clustering-2.png" width="70%"/>
+<img src="images/spark-clustering-2.png?raw=true" alt="spark-clustering-2.png" width="100%"/>
 </p>
 
 Looking at this initial  graph with 2 clusters, we can note the followind:
@@ -173,7 +173,7 @@ Looking at this initial  graph with 2 clusters, we can note the followind:
 - Users with higher hit average and higher ad clicks have a slightly higher tendency to spend more money.
 
 <p align="center">
-<img src="images/spark-clustering-5.png?raw=true" alt="spark-clustering-5.png" width="70%"/>
+<img src="images/spark-clustering-5.png?raw=true" alt="spark-clustering-5.png" width="100%"/>
 </p>
 
 This graph with 5 clusters provides a more detailed view of the patterns:
