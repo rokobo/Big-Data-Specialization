@@ -6,7 +6,12 @@
     - [Aggregations on Splunk](#aggregations-on-splunk)
     - [Visualizations on Splunk](#visualizations-on-splunk)
   - [Classification model in Knime for big spenders](#classification-model-in-knime-for-big-spenders)
+    - [Recommendations from Knime](#recommendations-from-knime)
   - [K-means clustering in Spark](#k-means-clustering-in-spark)
+    - [Recommendations from Spark](#recommendations-from-spark)
+  - [Modelling chat data on Neo4j](#modelling-chat-data-on-neo4j)
+    - [Analysis of user activity on Neo4j](#analysis-of-user-activity-on-neo4j)
+    - [Recommendations from Neo4j](#recommendations-from-neo4j)
 
 Catch the Pink Flamingo is a cross-platform game that needs Big Data analysis to increase the game's revenue. The game's data model is shown in the following entity relationship diagram (ERD):
 
@@ -39,14 +44,14 @@ The table below lists each of the files available for analysis with a short desc
 
 | File name | Description | Fields |
 | --- | --- | --- |
-| `ad-clicks.csv` | Player clicks on an advertisement | - `timestamp`: When the click occurred <br> - `txId`: A unique id (within ad-clicks.log) for the click <br> - `userSessionId`: Id of the user session for the user who made the click <br> - `teamid`: The current team id of the user who made the click <br> - `userId`: The user id of the user who made the click <br> - `adId`: The id of the ad clicked on <br> - `adCategory`: The category/type of ad clicked on
-| `buy-clicks.csv` | Player in-app purchase | - `timestamp`: When the purchase was made <br> - `txId`: A unique id (within buy-clicks.log) for the purchase <br> - `userSessionId`: The id of the user session for the user who made the purchase <br> - `team`: The current team id of the user who made the purchase <br> - `userId`: The user id of the user who made the purchase <br> - `buyId`: The id of the item purchased <br> - `price`: The price of the item purchased
-| `users.csv` | Users playing the game. | - `timestamp`: When user first played the game <br> - `userId`: The user id assigned to the user <br> - `nick`: The nickname chosen by the user <br> - `twitter`: The twitter handle of the user <br> - `dob`: The date of birth of the user <br> - `country`: The two-letter country code where the user lives
-| `team.csv` | Teams terminated in the game. | - `teamid`: The id of the team <br> - `name`: The name of the team <br> - `teamCreationTime`: The timestamp when the team was created <br> - `teamEndTime`: The timestamp when the last member left the team <br> - `strength`: A measure of team strength <br> - `currentLevel`: The current level of the team
-| `team-assignments.csv` | User team assignment (1 per user) | - `timestamp`: When the user joined the team <br> - `team`: The id of the team <br> - `userId`: The id of the user <br> - `assignmentId`: A unique id for this assignment
-| `level-events.csv` | Events when a team starts/finishes level | - `timestamp`: When the event occurred <br> - `eventId`: A unique id for the event <br> - `teamid`: The id of the team <br> - `teamLevel`: The level started or completed <br> - `eventType`: The type of event, either start or end
-| `user-session.csv` | User sessions | - `timestamp`: A `timestamp` denoting when the event occurred.  <br> - `userSessionId`: A unique id for the session <br> - `userId`: The current user's ID <br> - `teamid`: The current user's team <br> - `assignmentId`: The team assignment id for the user to the team <br> - `sessionType`: Whether the event is the start or end of a session <br> - `teamLevel`: The level of the team during this session.  <br> - `platformType`: The type of platform of the user during this session
-| `game-clicks.csv` | User clicks in game | - `timestamp`: When the click occurred <br> - `clickId`: A unique id for the click <br> - `userId`: The id of the user performing the click <br> - `userSessionId`: The id of the session of the user when the click is performed <br> - `isHit`: Denotes if the click was on a flamingo `1` or missed the flamingo `0` <br> - `teamid`: The id of the team of the user <br> - `teamLevel`: The current level of the team of the user
+| `ad-clicks.csv` | Player clicks on an advertisement | - `timestamp`: When the click occurred <br> - `txId`: A unique id (within ad-clicks.log) for the click <br> - `userSessionId`: Id of the user session for the user who made the click <br> - `teamid`: The current team id of the user who made the click <br> - `userId`: The user id of the user who made the click <br> - `adId`: The id of the ad clicked on <br> - `adCategory`: The category/type of ad clicked on |
+| `buy-clicks.csv` | Player in-app purchase | - `timestamp`: When the purchase was made <br> - `txId`: A unique id (within buy-clicks.log) for the purchase <br> - `userSessionId`: The id of the user session for the user who made the purchase <br> - `team`: The current team id of the user who made the purchase <br> - `userId`: The user id of the user who made the purchase <br> - `buyId`: The id of the item purchased <br> - `price`: The price of the item purchased |
+| `users.csv` | Users playing the game. | - `timestamp`: When user first played the game <br> - `userId`: The user id assigned to the user <br> - `nick`: The nickname chosen by the user <br> - `twitter`: The twitter handle of the user <br> - `dob`: The date of birth of the user <br> - `country`: The two-letter country code where the user lives |
+| `team.csv` | Teams terminated in the game. | - `teamid`: The id of the team <br> - `name`: The name of the team <br> - `teamCreationTime`: The timestamp when the team was created <br> - `teamEndTime`: The timestamp when the last member left the team <br> - `strength`: A measure of team strength <br> - `currentLevel`: The current level of the team |
+| `team-assignments.csv` | User team assignment (1 per user) | - `timestamp`: When the user joined the team <br> - `team`: The id of the team <br> - `userId`: The id of the user <br> - `assignmentId`: A unique id for this assignment |
+| `level-events.csv` | Events when a team starts/finishes level | - `timestamp`: When the event occurred <br> - `eventId`: A unique id for the event <br> - `teamid`: The id of the team <br> - `teamLevel`: The level started or completed <br> - `eventType`: The type of event, either start or end |
+| `user-session.csv` | User sessions | - `timestamp`: A `timestamp` denoting when the event occurred.  <br> - `userSessionId`: A unique id for the session <br> - `userId`: The current user's ID <br> - `teamid`: The current user's team <br> - `assignmentId`: The team assignment id for the user to the team <br> - `sessionType`: Whether the event is the start or end of a session <br> - `teamLevel`: The level of the team during this session.  <br> - `platformType`: The type of platform of the user during this session |
+| `game-clicks.csv` | User clicks in game | - `timestamp`: When the click occurred <br> - `clickId`: A unique id for the click <br> - `userId`: The id of the user performing the click <br> - `userSessionId`: The id of the session of the user when the click is performed <br> - `isHit`: Denotes if the click was on a flamingo `1` or missed the flamingo `0` <br> - `teamid`: The id of the team of the user <br> - `teamLevel`: The current level of the team of the user |
 
 ### Aggregations on Splunk
 
@@ -138,7 +143,7 @@ The overall accuracy of the model was:
 
 *Accuracy: 87.08%, Cohen`s kappa: 0.739%*
 
-### Recommendations
+### Recommendations from Knime
 
 From the analysis of the decision tree, the most reliant metric to determine if a user is a high spender or low spender is the platform type of the user. My recommendations to increase revenue include:
 
@@ -157,7 +162,6 @@ The K-means clustering was done in PySpark. The code can be seen in the notebook
 - `Platform type`: Might provide insight into how a user's platform type affects their spending patterns.
 
 The analysis can be customized by changing the number of clusters. The results can then be visualized in a bar graph that compares each cluster by feature:
-
 
 <img src="images/spark-clustering-2.png?raw=true" alt="spark-clustering-2.png" width="100%"/>
 
@@ -182,7 +186,7 @@ This graph with 5 clusters provides a more detailed view of the patterns:
 - Team level shows no correlation to user spending.
 - Hit average and ad clicks show a positive rising correlation with higher user spending.
 
-### Recommendations
+### Recommendations from Spark
 
 From the analysis of the K-Means model in Spark, my recommendations to increase revenue include:
 
@@ -271,10 +275,9 @@ Here is an example graph from `CALL db.schema.visualization()`:
 
 <img src="images/neo4j-schema.svg?raw=true" alt="neo4j-schema.svg"/>
 
-
 ### Analysis of user activity on Neo4j
 
-+ What are the characteristics of the top 10 chattiest users?
+- What are the characteristics of the top 10 chattiest users?
 
     ```cypher
     // Get top 10 chattiest teams
@@ -319,7 +322,7 @@ Here is an example graph from `CALL db.schema.visualization()`:
      | 668   | 104               | 89     | false                | 1.0                   |
      | 461   | 104               | 104    | false                | 1.0                   |
 
-+ What are the longest conversation chains in the chat data using the `:ResponseTo` edge label?
+- What are the longest conversation chains in the chat data using the `:ResponseTo` edge label?
 
     ```cypher
     // Match the longest paths of ResponseTo relationships
@@ -350,7 +353,7 @@ Here is an example graph from `CALL db.schema.visualization()`:
 
     <img src="images/neo4j-longest-chat.svg?raw=true" alt="neo4j-longest-chat.svg"/>
 
-### Recommendations
+### Recommendations from Neo4j
 
 - **Increase** company engagement with top chattiest users, prioritizing those with high local clustering coefficients.
 - **Implement** referral programs, beta testing and reward systems for chattier users with high cluster coefficinets.
