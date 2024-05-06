@@ -8,7 +8,7 @@
   - [Classification model in Knime for big spenders](#classification-model-in-knime-for-big-spenders)
   - [K-means clustering in Spark](#k-means-clustering-in-spark)
 
-The game's data model is shown in the following entity relationship diagram (ERD):
+Catch the Pink Flamingo is a cross-platform game that needs Big Data analysis to increase the game's revenue. The game's data model is shown in the following entity relationship diagram (ERD):
 
 <img src="images/ERD.png?raw=true" alt="ERD" width="75%"/>
 
@@ -22,7 +22,7 @@ The game's data model is shown in the following entity relationship diagram (ERD
 
 ## Data Exploration
 
-Data exploration was done in a Splunk docker container with directory monitor on `/data` and the following docker `run` command:
+Data exploration was done in a Splunk Docker container with directory monitor on `/data` and the following Docker `run` command:
 
 ```bash
 docker run -d \
@@ -159,9 +159,7 @@ The K-means clustering was done in PySpark. The code can be seen in the notebook
 The analysis can be customized by changing the number of clusters. The results can then be visualized in a bar graph that compares each cluster by feature:
 
 
-<p align="center">
 <img src="images/spark-clustering-2.png?raw=true" alt="spark-clustering-2.png" width="100%"/>
-</p>
 
 Looking at this initial  graph with 2 clusters, we can note the followind:
 
@@ -172,9 +170,7 @@ Looking at this initial  graph with 2 clusters, we can note the followind:
 - Users on weaker teams have a slightly higher tendency to spend more money.
 - Users with higher hit average and higher ad clicks have a slightly higher tendency to spend more money.
 
-<p align="center">
 <img src="images/spark-clustering-5.png?raw=true" alt="spark-clustering-5.png" width="100%"/>
-</p>
 
 This graph with 5 clusters provides a more detailed view of the patterns:
 
@@ -197,3 +193,167 @@ From the analysis of the K-Means model in Spark, my recommendations to increase 
 - **Develop** new game mechanisms that incentivize high hit averages and continued engagement.
 - **Increase** ad spending for users in low to mid strength teams and **decrease** ad spending for users in high-strength teams.
 - **Increase** ad spending progressively for users with high spending.
+
+## Modelling chat data on Neo4j
+
+The chat data was modeled in ordeer to capture user trends in chat data and recommend actions to the company. The modelling was done in Neo4j using a Docker container created by the following Docker run command:
+
+```bash
+docker run -d \
+    --name neo4j-container \
+    --publish=7474:7474 --publish=7687:7687 \
+    --env=NEO4J_AUTH=none \
+    --volume=$(pwd)/data-neo4j:/var/lib/neo4j/import \
+    neo4j
+```
+
+And the following Cypher load script:
+
+```cypher
+CREATE CONSTRAINT FOR (u:User) REQUIRE u.id IS UNIQUE;
+CREATE CONSTRAINT FOR (t:Team) REQUIRE t.id IS UNIQUE;
+CREATE CONSTRAINT FOR (c:TeamChatSession) REQUIRE c.id IS UNIQUE;
+CREATE CONSTRAINT FOR (i:ChatItem) REQUIRE i.id IS UNIQUE;
+
+// Create team chat sessions nodes that are created by an user nodes and owned by team nodes
+LOAD CSV FROM "file:///chat_create_team_chat.csv" AS row
+MERGE (u:User {id: toInteger(row[0])})
+MERGE (t:Team {id: toInteger(row[1])})
+MERGE (c:TeamChatSession {id: toInteger(row[2])})
+MERGE (u)-[:CreatesSession{timeStamp: row[3]}]->(c)
+MERGE (c)-[:OwnedBy{timeStamp: row[3]}]->(t);
+
+// Create user nodes that join team chat sessions nodes
+LOAD CSV FROM "file:///chat_join_team_chat.csv" AS row
+MERGE (u:User {id: toInteger(row[0])})
+MERGE (c:TeamChatSession {id: toInteger(row[1])})
+MERGE (u)-[:Joins{timeStamp: row[2]}]->(c);
+
+// Create user nodes that leave team chat sessions nodes
+LOAD CSV FROM "file:///chat_leave_team_chat.csv" AS row
+MERGE (u:User {id: toInteger(row[0])})
+MERGE (c:TeamChatSession {id: toInteger(row[1])})
+MERGE (u)-[:Leaves{timeStamp: row[2]}]->(c);
+
+// Create user nodes that create chat item nodes that are part of team chat session nodes
+LOAD CSV FROM "file:///chat_item_team_chat.csv" AS row
+MERGE (u:User {id: toInteger(row[0])})
+MERGE (c:TeamChatSession {id: toInteger(row[1])})
+MERGE (i:ChatItem {id: toInteger(row[2])})
+MERGE (u)-[:CreateChat{}]->(i)
+MERGE (i)-[:PartOf{timeStamp: row[3]}]->(c);
+
+// Create user nodes that are mentioned by a chat item node
+LOAD CSV FROM "file:///chat_mention_team_chat.csv" AS row
+MERGE (i:ChatItem {id: toInteger(row[0])})
+MERGE (u:User {id: toInteger(row[1])})
+MERGE (i)-[:Mentioned{timeStamp: row[2]}]->(u);
+
+// Create chat item nodes that are a response to another chat item node
+LOAD CSV FROM "file:///chat_respond_team_chat.csv" AS row
+MERGE (i1:ChatItem {id: toInteger(row[0])})
+MERGE (i2:ChatItem {id: toInteger(row[1])})
+MERGE (i1)-[:ResponseTo{timeStamp: row[2]}]->(i2);
+
+// Create edge that represents a user interacting with another user, either through mentions or responses
+MATCH (u1:User)-[:CreateChat]->(c:ChatItem)-[:Mentioned]->(u2:User)
+WHERE u1 <> u2
+MERGE (u1)-[:InteractsWith]->(u2);
+
+MATCH (u1:User)-[:CreateChat]->(c:ChatItem)-[:ResponseTo]->(:ChatItem)<-[:CreateChat]-(u2: User)
+WHERE u1 <> u2
+MERGE (u1)-[:InteractsWith]->(u2);
+```
+
+Here is an example graph from `CALL db.schema.visualization()`:
+
+<img src="images/neo4j-schema.svg?raw=true" alt="neo4j-schema.svg"/>
+
+
+### Analysis of user activity on Neo4j
+
++ What are the characteristics of the top 10 chattiest users?
+
+    ```cypher
+    // Get top 10 chattiest teams
+    MATCH (c:ChatItem)-[:PartOf]->(:TeamChatSession)-[:OwnedBy]->(t:Team)
+    WITH t, COUNT(c) AS NumberOfTeamChatItems
+    ORDER BY NumberOfTeamChatItems DESC
+    LIMIT 10
+
+    // Get top 10 chattiest users and check if they are in the top 10 teams
+    WITH COLLECT(t) AS topTeams
+    MATCH (u:User)-[r:CreateChat]-(c:ChatItem)-[:PartOf]->(:TeamChatSession)-[:OwnedBy]->(t:Team)
+    WITH u, COUNT(c) AS ChatItemsCreated, t, topTeams
+    ORDER BY ChatItemsCreated DESC
+    LIMIT 10
+    WITH u, ChatItemsCreated, t, t IN topTeams AS IsInTopChattiestTeams, COLLECT(u) as topChattiestUsers
+
+    // Get the clustering coefficient of the users
+    MATCH (u:User)-[r:InteractsWith]->(u2:User)
+    WITH u, count(u2) as NeighborCount, collect(u2) as neighbors, ChatItemsCreated, t, IsInTopChattiestTeams
+    UNWIND neighbors as neighbor
+    MATCH (neighbor)-[r:InteractsWith]->(u2:User)
+    WHERE u2 in neighbors
+    WITH u, NeighborCount, count(r) AS SecondaryDegree, ChatItemsCreated, t, IsInTopChattiestTeams
+    RETURN
+        u.id AS UserID,
+        ChatItemsCreated,
+        t.id AS TeamID,
+        IsInTopChattiestTeams,
+        (1.0*SecondaryDegree)/(NeighborCount * (NeighborCount-1)) AS ClusteringCoefficient
+    ```
+
+    | UserID | NumberOfChatItems | TeamID | IsInTopChattiestTeams | ClusteringCoefficient |
+    | --- | --- | --- | --- | --- |
+    | 394 |115 | 63 | false |0.75 |
+    | 2067 |111 | 7 | false |0.9333333333333333 |
+    | 209 |109 | 7 | false |1.0 |
+    | 1087 |109 | 77 | false |0.7333333333333333 |
+    | 554 |107 | 181 | false |0.8 |
+    | 999 |105 | 52 | true |0.9464285714285714 |
+    | 1627 |105 | 7 | false |0.9333333333333333 |
+    | 516 |105 | 7 | false |0.9333333333333333 |
+    | 668 |104 | 89 | false |1.0 |
+    | 461 |104 | 104 | false |0.8333333333333334 |
+
++ What are the longest conversation chains in the chat data using the `:ResponseTo` edge label?
+
+    ```cypher
+    // Match the longest paths of ResponseTo relationships
+    MATCH path=()-[:ResponseTo*]->()
+    WITH path, LENGTH(path) AS pathLength
+    ORDER BY pathLength DESC
+    LIMIT 10
+
+    // Match auxiliary information for the path
+    UNWIND NODES(path) AS chatItem
+    MATCH (user:User)-[:CreateChat]->(chatItem)
+    WITH pathLength + 1 as pathLength, COLLECT(DISTINCT user.id) AS UserIDs, nodes(path) as pathNodes
+    RETURN pathLength, SIZE(UserIDs) as UserCount, UserIDs, pathNodes
+    ```
+
+    | maxPathLength | UserCount | UserIDs | pathNodes |
+    | --- | --- | --- | --- |
+    | 10 | 5 | [1514, 1192, 853, 1153, 1978] | ... |
+    | 9  | 4 | [1192, 853, 1153, 1978]       | ... |
+    | 9  | 5 | [1514, 1192, 853, 1153, 1978] | ... |
+    | 8  | 4 | [1192, 1978, 853, 1153]       | ... |
+    | 8  | 4 | [1192, 1978, 853, 1153]       | ... |
+    | 8  | 4 | [1514, 1192, 853, 1153]       | ... |
+    | 8  | 4 | [1192, 853, 1153, 1978]       | ... |
+    | 8  | 4 | [1192, 853, 1153, 1978]       | ... |
+    | 7  | 4 | [1978, 1192, 853, 1153]       | ... |
+    | 7  | 4 | [1192, 853, 1153, 1978]       | ... |
+
+    <img src="images/neo4j-longest-chat.svg?raw=true" alt="neo4j-longest-chat.svg"/>
+
+### Recommendations
+
+- Increase company engagement with top chattiest users, prioritizing those with high local clustering coefficients.
+- Implement referral programs, beta testing and reward systems for chattier users with high cluster coefficinets.
+- Utilize clusters with high clustering coefficients to:
+    1. Improve ads by providing a more personalized targetting mechanism.
+    2. Improve ads by testing different types of ads on members of different clusters in order to infer cluster interests.
+- Implement a reward system for users involved in long conversation chains.
+- Implement a influencer program for users in multiple long conversation chains.
