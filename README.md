@@ -260,7 +260,7 @@ MATCH (u1:User)-[:CreateChat]->(c:ChatItem)-[:Mentioned]->(u2:User)
 WHERE u1 <> u2
 MERGE (u1)-[:InteractsWith]->(u2);
 
-MATCH (u1:User)-[:CreateChat]->(c:ChatItem)-[:ResponseTo]->(:ChatItem)<-[:CreateChat]-(u2: User)
+MATCH (u1:User)-[:CreateChat]->(c:ChatItem)-[:ResponseTo]-(:ChatItem)<-[:CreateChat]-(u2: User)
 WHERE u1 <> u2
 MERGE (u1)-[:InteractsWith]->(u2);
 ```
@@ -305,17 +305,17 @@ Here is an example graph from `CALL db.schema.visualization()`:
     ```
 
     | UserID | NumberOfChatItems | TeamID | IsInTopChattiestTeams | ClusteringCoefficient |
-    | --- | --- | --- | --- | --- |
-    | 394 |115 | 63 | false |0.75 |
-    | 2067 |111 | 7 | false |0.9333333333333333 |
-    | 209 |109 | 7 | false |1.0 |
-    | 1087 |109 | 77 | false |0.7333333333333333 |
-    | 554 |107 | 181 | false |0.8 |
-    | 999 |105 | 52 | true |0.9464285714285714 |
-    | 1627 |105 | 7 | false |0.9333333333333333 |
-    | 516 |105 | 7 | false |0.9333333333333333 |
-    | 668 |104 | 89 | false |1.0 |
-    | 461 |104 | 104 | false |0.8333333333333334 |
+    |--------|-------------------|--------|----------------------|-----------------------|
+     | 394   | 115               | 63     | false                | 0.9166666666666666    |
+     | 2067  | 111               | 7      | false                | 0.7678571428571429    |
+     | 209   | 109               | 7      | false                | 0.9523809523809523    |
+     | 1087  | 109               | 77     | false                | 0.7666666666666667    |
+     | 554   | 107               | 181    | false                | 0.8095238095238095    |
+     | 999   | 105               | 52     | true                 | 0.8194444444444444    |
+     | 1627  | 105               | 7      | false                | 0.7678571428571429    |
+     | 516   | 105               | 7      | false                | 0.9523809523809523    |
+     | 668   | 104               | 89     | false                | 1.0                   |
+     | 461   | 104               | 104    | false                | 1.0                   |
 
 + What are the longest conversation chains in the chat data using the `:ResponseTo` edge label?
 
@@ -350,10 +350,10 @@ Here is an example graph from `CALL db.schema.visualization()`:
 
 ### Recommendations
 
-- Increase company engagement with top chattiest users, prioritizing those with high local clustering coefficients.
-- Implement referral programs, beta testing and reward systems for chattier users with high cluster coefficinets.
-- Utilize clusters with high clustering coefficients to:
-    1. Improve ads by providing a more personalized targetting mechanism.
-    2. Improve ads by testing different types of ads on members of different clusters in order to infer cluster interests.
-- Implement a reward system for users involved in long conversation chains.
-- Implement a influencer program for users in multiple long conversation chains.
+- **Increase** company engagement with top chattiest users, prioritizing those with high local clustering coefficients.
+- **Implement** referral programs, beta testing and reward systems for chattier users with high cluster coefficinets.
+- **Utilize** clusters with high clustering coefficients to:
+  - **Improve** ads by providing a more personalized targetting mechanism.
+  - **Improve** ads by testing different types of ads on members of different clusters in order to infer cluster interests.
+- **Implement** a reward system for users involved in long conversation chains.
+- **Implement** a influencer program for users in multiple long conversation chains.
