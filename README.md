@@ -193,6 +193,8 @@ From the analysis of the K-Means model in Spark, my recommendations to increase 
 - **Develop** new game mechanisms that incentivize high hit averages and continued engagement.
 - **Increase** ad spending for users in low to mid strength teams and **decrease** ad spending for users in high-strength teams.
 - **Increase** ad spending progressively for users with high spending.
+- **Use** the red clusters to find users to give discounts for in-game purchases.
+- **Use** the green clusters to find users to increase the price for in-game purchases.
 
 ## Modelling chat data on Neo4j
 
