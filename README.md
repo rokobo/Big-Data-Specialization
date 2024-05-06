@@ -5,6 +5,7 @@
     - [Data Set Overview](#data-set-overview)
     - [Aggregations on Splunk](#aggregations-on-splunk)
     - [Visualizations on Splunk](#visualizations-on-splunk)
+    - [Recommendations from Splunk](#recommendations-from-splunk)
   - [Classification model in Knime for big spenders](#classification-model-in-knime-for-big-spenders)
     - [Recommendations from Knime](#recommendations-from-knime)
   - [K-means clustering in Spark](#k-means-clustering-in-spark)
@@ -111,6 +112,12 @@ The table below lists each of the files available for analysis with a short desc
     | 1 | 2229 | iphone | 11.60 |
     | 2 | 12 | iphone | 13.07 |
     | 3 | 471 | iphone | 14.50 |
+
+### Recommendations from Splunk
+
+- **Create** more items like item 0, 2 and 5, which seem to be of interest to the players.
+- **Increase** the price of item 0 and 2, which has interest, but low revenue.
+- **Investigate** the reason as to why item 1 has little interest from the players and adjust as needed.
 
 ## Classification model in Knime for big spenders
 
