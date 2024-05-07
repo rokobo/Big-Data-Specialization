@@ -13,6 +13,7 @@
   - [Modelling chat data on Neo4j](#modelling-chat-data-on-neo4j)
     - [Analysis of user activity on Neo4j](#analysis-of-user-activity-on-neo4j)
     - [Recommendations from Neo4j](#recommendations-from-neo4j)
+  - [Summary of recommendations](#summary-of-recommendations)
 
 Catch the Pink Flamingo is a cross-platform game that needs Big Data analysis to increase the game's revenue. The game's data model is shown in the following entity relationship diagram (ERD):
 
@@ -152,8 +153,6 @@ The overall accuracy of the model was:
 
 ### Recommendations from Knime
 
-From the analysis of the decision tree, the most reliant metric to determine if a user is a high spender or low spender is the platform type of the user. My recommendations to increase revenue include:
-
 - **Increase** the quantity, price and exclusives of the item market in the IOS platform.
 - **Increase** ad spending for IOS devices.
 - **Eliminate** ad spending for Linux users and **decrease** ad spending for Android, Windows and Mac users.
@@ -195,14 +194,12 @@ This graph with 5 clusters provides a more detailed view of the patterns:
 
 ### Recommendations from Spark
 
-From the analysis of the K-Means model in Spark, my recommendations to increase revenue include:
-
 - **Increase** the quantity, price and exclusives of the item market in the IOS platform.
 - **Increase** ad spending for IOS devices.
 - **Eliminate** ad spending for Linux users and **decrease** ad spending for Android, Windows and Mac users.
 - **Increase** ad spending for users with high hit averages, **decrease** ad spending for users with low hit averages.
 - **Develop** new game mechanisms that incentivize high hit averages and continued engagement.
-- **Increase** ad spending for users in low to mid strength teams and **decrease** ad spending for users in high-strength teams.
+- **Increase** ad spending for users in low strength teams.
 - **Increase** ad spending progressively for users with high spending.
 - **Use** the red clusters to find users to give discounts for in-game purchases.
 - **Use** the green clusters to find users to increase the price for in-game purchases.
@@ -369,3 +366,19 @@ Here is an example graph from `CALL db.schema.visualization()`:
   - **Improve** ads by testing different types of ads on members of different clusters in order to infer cluster interests.
 - **Implement** a reward system for users involved in long conversation chains.
 - **Implement** a influencer program for users in multiple long conversation chains.
+
+## Summary of recommendations
+
+1. Dynamic princing models with Spark:
+   - Increase ad spending progressively based on spending habits.
+   - Implement targeted advertising campaigns offering special deals or discounts to users with low spending.
+   - Offer exclusive in-game items, bundles and limited edition items to high-spending users.
+   - Adjust ad spending based on qualities seen in high-spending clusters, such as platform, team strength, hit-ratio, team level and ad click-rate.
+
+2. Dynamic item pricing with Splunk:
+   - Increase the price of items with high buy volume, with the goal of optimizing the price to maximize revenue.
+   - Setup pipelines to periodically review and intervene in the pricing and marketing of items that show low interest and revenue.
+   - Setup pipelines to regularly analyze high-interest items and explore opportunities for creating similar or complementary items.
+
+3. User-targeted community engagement with Neo4j:
+   - Create referral programs, influencer programs, beta testing and reward systems for users with high chat count, cluster coefficient and that are part of long conversation chains.
